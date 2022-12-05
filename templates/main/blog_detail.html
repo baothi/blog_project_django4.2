@@ -1,0 +1,36 @@
+{% extends 'base.html' %} {% block content %}
+<dev class="container">
+  <div class="row">
+    <div class="col-md-8">
+      <h2>{{ blog.name }}</h2>
+      <span>Author: {{blog.author}}</span>
+      <div>
+        <small>{{ blog.post_date }}</small>
+      </div>
+
+      <img
+        src="https://images.pexels.com/photos/11013073/pexels-photo-11013073.jpeg?cs=srgb&dl=pexels-anil-singh-11013073.jpg&fm=jpg"
+        alt=""
+        width="40%"
+      />
+
+      <div>
+        <p>{{blog.description}}</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <ul class="list-group">
+        {% for blogs in all_blogs %}
+        <li class="list-group-item">
+          <a
+            href="{% url 'blog_detail' blogs.slug %}"
+            class="text-decoration-none"
+            >{{blogs.name}}</a
+          >
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</dev>
+{% endblock content %}
