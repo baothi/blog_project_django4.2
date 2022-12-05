@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
 from .forms import SignupForm, LoginUserForm
 from django.contrib.auth import authenticate, login, logout
+from main.models import Blog
 
 # Create your views here.
 def signUp(request):
@@ -44,6 +45,21 @@ def logIn(request):
   return render(request, "authors/login.html", {"login_form": form})
 
 def logOut(request):
-    logout(request)
-    messages.success(request, "You have successfully logged out.")
-    return redirect('blog_home')
+  logout(request)
+  messages.success(request, "You have successfully logged out.")
+  return redirect('blog_home')
+
+def profile(request, user_name):
+  user_related_data = Blog.objects.filter(author__username = user_name)
+  context = {
+      "user_related_data": user_related_data
+  }
+  return render(request, "authors/profile.html", context)
+
+
+# https://www.youtube.com/watch?v=D_KyndgwD1o&list=PLKnjLEpehhFnb210PantMg9sdQNrygxUL&index=27
+# https://github.com/yash-2115/django_blog_youtube
+
+
+
+
