@@ -2,39 +2,69 @@ from django.shortcuts import redirect, render
 from .models import Blog, BlogComment, Contact
 from .forms import ContactForm
 from django.contrib import messages
+from django.views import generic
+from django.contrib.messages.views import SuccessMessageMixin
 # Create your views here.
 
 
-def blog_home(request):
-    all_blogs = Blog.objects.all()
-    context = {
-        'blogs': all_blogs
-    }
-    return render(request, "main/blog_home.html", context)
+# def blog_home(request):
+#     all_blogs = Blog.objects.all()
+#     context = {
+#         'blogs': all_blogs
+#     }
+#     return render(request, "main/blog_home.html", context)
 
 
-def blog_detail(request, slug_url):
-    blog = Blog.objects.get(slug=slug_url)
-    all_blogs = Blog.objects.all().order_by('-post_date')[:10]
-    context = {
-        'blog':blog,
-        'all_blogs': all_blogs
-    }
-    return render(request, "main/blog_detail.html", context)
+# def blog_detail(request, slug_url):
+#     blog = Blog.objects.get(slug=slug_url)
+#     all_blogs = Blog.objects.all().order_by('-post_date')[:10]
+#     context = {
+#         'blog':blog,
+#         'all_blogs': all_blogs
+#     }
+#     return render(request, "main/blog_detail.html", context)
 
-def profile(request):
-  return render(request,"main/profile.html")
+# def profile(request):
+#   return render(request,"main/profile.html")
 
-def contactUs(request):
-    form = ContactForm()
-    if request.method == "POST":
-        form = ContactForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "your form is submitted successfully")
-            return redirect("blog_home")
+# def contactUs(request):
+#     form = ContactForm()
+#     if request.method == "POST":
+#         form = ContactForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             messages.success(request, "your form is submitted successfully")
+#             return redirect("blog_home")
             
-    else:
-        form = ContactForm()
-        messages.success(request, "please fill the details profile")
-    return render(request, "main/contact_us.html", {"form": form})
+#     else:
+#         form = ContactForm()
+#         messages.success(request, "please fill the details profile")
+#     return render(request, "main/contact_us.html", {"form": form})
+
+class blog_home(generic.ListView):
+    model = Blog
+    template_name = "main/blog_home.html"
+
+class blog_detail(generic.DetailView):
+    model = Blog
+    template_name = "main/blog_detail.html"
+
+class contactUs(SuccessMessageMixin, generic.CreateView):
+    form_class = ContactForm
+    template_name = "main/contact_us.html"
+    success_url = "/"
+    success_message = "Your query has been submited successfully, we will contact you soon."
+
+    def form_invalid(self, form):
+        messages.add_message(self.request, messages.ERROR, "Please submit the form carefully")
+        return redirect('home')
+
+
+
+
+
+
+
+
+
+
