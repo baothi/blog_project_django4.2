@@ -10,23 +10,19 @@
 
       <div>
         {% if user.is_authenticated %} {% if user.id == blog.author.id %}
-        <a class="btn btn-sm btn-info" href="#"
+        <a class="btn btn-sm btn-info" href="{% url 'UpdateBlogView' blog.id %}"
           ><i class="fa-solid fa-pen-to-square"></i> Edit Blog</a
         >
-        <a class="btn btn-sm btn-danger" href="#">
+        <a
+          class="btn btn-sm btn-danger"
+          href="{% url 'DeleteBlogView' blog.id %}"
+        >
           <i class="fa-solid fa-trash"></i> Delete Blog</a
         >
         {% endif %} {% endif %}
       </div>
-
-      <img
-        src="https://images.pexels.com/photos/11013073/pexels-photo-11013073.jpeg?cs=srgb&dl=pexels-anil-singh-11013073.jpg&fm=jpg"
-        alt=""
-        width="40%"
-      />
-
       <div>
-        <p>{{blog.description}}</p>
+        <p>{{blog.description|safe }}</p>
       </div>
     </div>
     <div class="col-md-4">

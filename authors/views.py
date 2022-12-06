@@ -1,3 +1,4 @@
+import django
 from django.shortcuts import redirect, render
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
@@ -8,6 +9,10 @@ from main.models import Blog
 from django.contrib.auth.views import PasswordChangeView
 from django.views import generic
 from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.auth.models import User
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
+
 
 # Create your views here.
 # def signUp(request):
@@ -48,11 +53,14 @@ from django.contrib.messages.views import SuccessMessageMixin
 #   form = LoginUserForm()
 #   return render(request, "authors/login.html", {"login_form": form})
 
+
 # def logOut(request):
 #   logout(request)
 #   messages.success(request, "You have successfully logged out.")
 #   return redirect('blog_home')
 
+
+# @login_required(login_url="login")
 # def profile(request, user_name):
 #   user_related_data = Blog.objects.filter(author__username = user_name)
 #   context = {
@@ -100,14 +108,16 @@ class logIn(generic.View):
         return render(request, "authors/login.html", {"form": form})
 
 
-class logOut(generic.View):
-  def get(self, request):
+class logOut(LoginRequiredMixin, generic.View):
+    login_url = 'login'
+    def get(self, request):
       logout(request)
       messages.success(request, "User logged out")
       return redirect('home')
 
-class profile(generic.View):
+class profile(LoginRequiredMixin, generic.View):
     model = Blog
+    login_url = 'login'
     template_name = "authors/profile.html"
 
     def get(self, request, user_name):
@@ -118,15 +128,17 @@ class profile(generic.View):
         return render(request, self.template_name, context)
 
 
-class PasswordChangeView(PasswordChangeView):
+class PasswordChangeView(LoginRequiredMixin, PasswordChangeView):
     form_class = PasswordChangingForm
+    login_url = 'login'
     success_url = reverse_lazy('password_success')
 
 def password_success(request):
     return render(request, "authors/password_change_success.html")
 
-class UpdateUserView(SuccessMessageMixin, generic.UpdateView):
+class UpdateUserView(LoginRequiredMixin, SuccessMessageMixin, generic.UpdateView):
     form_class = EditUserProfileForm
+    login_url = 'login'
     template_name = "authors/edit_user_profile.html"
     success_url = reverse_lazy('home')
     success_message = "User updated"
@@ -137,6 +149,14 @@ class UpdateUserView(SuccessMessageMixin, generic.UpdateView):
     def form_invalid(self, form):
         messages.add_message(self.request, messages.ERROR, "Please submit the form carefully")
         return redirect('home')
+
+class DeleteUser(LoginRequiredMixin, SuccessMessageMixin, generic.DeleteView):
+    model = User
+    login_url = 'login'
+    template_name = 'authors/delete_user_confirm.html'
+    success_message = "User has been deleted"
+    success_url = reverse_lazy('home')
+
 
 # https://www.youtube.com/watch?v=D_KyndgwD1o&list=PLKnjLEpehhFnb210PantMg9sdQNrygxUL&index=27
 # https://github.com/yash-2115/django_blog_youtube

@@ -1,9 +1,10 @@
 from django.shortcuts import redirect, render
 from .models import Blog, BlogComment, Contact
-from .forms import ContactForm
+from .forms import ContactForm, CreateBlogForm, UpdateBlogForm
 from django.contrib import messages
 from django.views import generic
 from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 # Create your views here.
 
 
@@ -15,14 +16,14 @@ from django.contrib.messages.views import SuccessMessageMixin
 #     return render(request, "main/blog_home.html", context)
 
 
-# def blog_detail(request, slug_url):
-#     blog = Blog.objects.get(slug=slug_url)
-#     all_blogs = Blog.objects.all().order_by('-post_date')[:10]
-#     context = {
-#         'blog':blog,
-#         'all_blogs': all_blogs
-#     }
-#     return render(request, "main/blog_detail.html", context)
+def blog_detail(request, slug_url):
+    blog = Blog.objects.get(slug=slug_url)
+    all_blogs = Blog.objects.all().order_by('-post_date')[:10]
+    context = {
+        'blog':blog,
+        'all_blogs': all_blogs
+    }
+    return render(request, "main/blog_detail.html", context)
 
 # def profile(request):
 #   return render(request,"main/profile.html")
@@ -45,9 +46,9 @@ class blog_home(generic.ListView):
     model = Blog
     template_name = "main/blog_home.html"
 
-class blog_detail(generic.DetailView):
-    model = Blog
-    template_name = "main/blog_detail.html"
+# class blog_detail(generic.DetailView):
+#     model = Blog
+#     template_name = "main/blog_detail.html"
 
 class contactUs(SuccessMessageMixin, generic.CreateView):
     form_class = ContactForm
@@ -60,10 +61,27 @@ class contactUs(SuccessMessageMixin, generic.CreateView):
         return redirect('home')
 
 
+class CreateBlog(LoginRequiredMixin, SuccessMessageMixin, generic.CreateView):
+    form_class = CreateBlogForm
+    template_name = "main/create_blog.html"
+    login_url = 'login'
+    success_url = "/"
+    success_message = "Your blog has been created"
 
+class UpdateBlogView(LoginRequiredMixin, SuccessMessageMixin, generic.UpdateView):
+    model = Blog
+    form_class = UpdateBlogForm
+    template_name = "main/update_blog.html"
+    login_url = 'login'
+    success_url = "/"
+    success_message = "Your blog has been updated"
 
-
-
+class DeleteBlogView(LoginRequiredMixin, SuccessMessageMixin, generic.DeleteView):
+    model = Blog
+    template_name = "main/delete_blog.html"
+    login_url = 'login'
+    success_url = "/"
+    success_message = "Your blog has been deleted"
 
 
 
